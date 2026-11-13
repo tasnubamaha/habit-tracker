@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Habit Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbf1e4;--paper:#fffaf3;--ink:#4b2e3b;--soft:#8b6b76;--line:#f0dfd0;--rose:#e58aa0;--pink:#f4b6c2;--peach:#fbd3b0;--yellow:#fbe8a6;--mint:#c9e4c5;--sky:#cfe3f3;--lilac:#d9cdf0;--dk:#4b2e3b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#2a1d24;--paper:#35252e;--ink:#f6e6ea;--soft:#c3a3ae;--line:#4d3a44}}
+:root[data-theme="dark"]{--bg:#2a1d24;--paper:#35252e;--ink:#f6e6ea;--soft:#c3a3ae;--line:#4d3a44}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:600 14px/1.45 Nunito,system-ui,sans-serif;min-height:100vh}
+.wrap{max-width:1100px;margin:0 auto;padding:22px 16px 48px}
+header{text-align:center;position:relative;padding:10px 0 18px}
+.yr{display:inline-block;background:var(--pink);color:var(--dk);border-radius:99px;padding:2px 16px;font-weight:800;letter-spacing:.12em}
+h1{font:italic 700 clamp(44px,9vw,76px)/1 'Playfair Display',Georgia,serif;margin:8px 0 4px;color:var(--ink)}
+.sub{color:var(--soft);font-weight:800;margin:0 0 14px}
+.tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.tab{border:0;border-radius:99px;padding:6px 18px;font:800 13px Nunito;color:var(--dk);cursor:pointer;opacity:.7;transition:transform .15s,opacity .15s}
+.tab[aria-selected=true]{opacity:1;transform:translateY(-2px);box-shadow:0 3px 0 rgba(75,46,59,.25)}
+.tab:nth-child(1){background:var(--yellow)}.tab:nth-child(2){background:var(--pink)}.tab:nth-child(3){background:var(--peach)}.tab:nth-child(4){background:var(--mint)}
+.sticker{position:absolute;right:0;top:0;width:78px;height:78px;border-radius:50%;background:var(--pink);color:var(--dk);display:grid;place-content:center;text-align:center;font:800 11px/1.2 Nunito;transform:rotate(12deg);border:2px dashed var(--dk);cursor:pointer;padding:0;transition:transform .2s}.sticker:hover{transform:rotate(0)}
+.sticker b{font:italic 700 17px 'Playfair Display',serif}
+.paper{background:var(--paper);border:2px solid var(--line);border-radius:22px;padding:16px;box-shadow:0 8px 0 var(--line)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.months{display:flex;gap:5px;flex-wrap:wrap}
+.mo{border:2px solid var(--line);background:transparent;color:var(--ink);border-radius:99px;padding:3px 11px;font:800 12px Nunito;cursor:pointer}
+.mo[aria-selected=true]{background:var(--rose);border-color:var(--rose);color:#fff}
+.yrn{display:flex;align-items:center;gap:8px;font-weight:800}
+.yrn button,.add button,.ghost{border:2px solid var(--line);background:transparent;color:var(--ink);border-radius:99px;padding:3px 12px;font:800 12px Nunito;cursor:pointer}
+.scroll{overflow-x:auto;border-radius:14px}
+table{border-collapse:separate;border-spacing:0;width:100%;min-width:760px}
+th,td{padding:3px 2px;text-align:center;border-bottom:1px solid var(--line)}
+thead th{font-size:11px;color:var(--soft);font-weight:800}
+thead th.today{color:var(--rose)}
+tbody th{text-align:left;position:sticky;left:0;background:var(--paper);min-width:150px;padding-right:8px;z-index:1}
+.hn{border:0;background:transparent;color:var(--ink);font:800 13px Nunito;width:105px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.x{border:0;background:none;color:var(--soft);cursor:pointer;font-size:14px}
+.ck{width:20px;height:20px;border-radius:50%;border:2px solid var(--line);background:transparent;cursor:pointer;padding:0;transition:background .15s,transform .15s}
+.ck.on{background:var(--c);border-color:var(--c);transform:scale(1.05);box-shadow:inset 0 0 0 3px var(--paper)}
+.ck:focus-visible,.tab:focus-visible,.mo:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--rose);outline-offset:2px}
+.pct{font-weight:800;min-width:44px}
+.add{display:flex;gap:8px;margin-top:12px}
+.add input,.ti{border:2px solid var(--line);background:transparent;color:var(--ink);border-radius:99px;padding:5px 14px;font:700 13px Nunito;flex:1;max-width:260px}
+.grid{display:grid;grid-template-columns:230px 1fr 1fr;gap:14px;margin-top:16px}
+@media(max-width:820px){.grid{grid-template-columns:1fr}.sticker{width:62px;height:62px;font-size:10px}}
+.card{border-radius:18px;padding:14px;color:var(--dk)}
+.card h3{margin:0 0 8px;font:italic 700 20px 'Playfair Display',serif}
+.c1{background:var(--pink)}.c2{background:var(--mint)}.c3{background:var(--sky)}.c4{background:var(--yellow)}.c5{background:var(--lilac)}.c6{background:var(--peach)}
+.donut{width:130px;height:130px;border-radius:50%;margin:4px auto;display:grid;place-content:center;font:800 26px Nunito}
+.donut span{background:var(--pink);width:92px;height:92px;border-radius:50%;display:grid;place-content:center}
+.stats{display:flex;justify-content:space-around;margin-top:8px;text-align:center;font-size:12px}
+.stats b{display:block;font-size:20px}
+.wk{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:12px;font-weight:800}
+.wk i{flex:1;height:12px;background:rgba(255,255,255,.55);border-radius:99px;overflow:hidden}
+.wk em{display:block;height:100%;background:var(--dk);border-radius:99px}
+.moods{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:8px}
+.md{border:2px solid var(--line);background:transparent;border-radius:14px;padding:4px 0;cursor:pointer;color:var(--soft);font:800 11px Nunito}
+.md span{display:block;font-size:22px;min-height:30px}
+.sl{display:flex;align-items:flex-end;gap:4px;height:150px;overflow-x:auto;padding-bottom:2px}
+.sl div{flex:1;min-width:24px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:10px;color:var(--soft)}
+.sl i{width:100%;background:var(--sky);border-radius:8px 8px 0 0;display:block}
+.sl input{width:100%;border:0;border-top:1px solid var(--line);background:transparent;color:var(--ink);text-align:center;font:800 11px Nunito;padding:3px 0}
+.rt{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:620px){.rt{grid-template-columns:1fr}}
+.rt label{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px dashed rgba(75,46,59,.25);cursor:pointer}
+.rt .done{text-decoration:line-through;opacity:.55}
+.rt input[type=checkbox]{accent-color:#4b2e3b;width:17px;height:17px}
+.foot{text-align:center;color:var(--soft);font-size:12px;margin-top:14px}
+</style></head>
+<body><div class="wrap">
+<header>
+ <button class="sticker" id="th" aria-label="Switch between light and dark theme"></button>
+ <span class="yr" id="yr">2027</span>
+ <h1>Habit Tracker</h1>
+ <p class="sub">cute, calm &amp; fully automated</p>
+ <div class="tabs" role="tablist" id="tabs"></div>
+</header>
+<main class="paper">
+ <div class="bar">
+  <div class="months" id="months"></div>
+  <div class="yrn"><button id="py" aria-label="Previous year">‹</button><span id="yn"></span><button id="ny" aria-label="Next year">›</button></div>
+ </div>
+ <div id="view"></div>
+</main>
+<p class="foot">Your ticks save in this browser, and every total updates by itself.</p>
+</div>
+<script>
+const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const COL=['#f4b6c2','#fbd3b0','#fbe8a6','#c9e4c5','#cfe3f3','#d9cdf0'];
+const MOODS=[['😊','happy'],['😌','calm'],['😐','okay'],['😔','sad'],['😣','tense']];
+const TABS=['habits','mood','routines','sleep'];
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let S=null;
+try{S=JSON.parse(localStorage.getItem('ht27'))}catch(e){}
+const now=new Date();
+S=S||{y:2027,m:0,tab:'habits',h:['Drink water','Move 20 min','Read 10 pages','Skincare','No sugar','Journal'],c:{},mood:{},sleep:{},am:[['Make bed',0],['Stretch',0],['Water + vitamins',0]],pm:[['Tidy desk',0],['Plan tomorrow',0],['Phone off',0]]};
+const save=()=>{try{localStorage.setItem('ht27',JSON.stringify(S))}catch(e){}};
+const dim=()=>new Date(S.y,S.m+1,0).getDate();
+const key=()=>S.y+'-'+S.m;
+const isToday=d=>now.getFullYear()==S.y&&now.getMonth()==S.m&&now.getDate()==d;
+ 
+function habits(){
+ const n=dim(),k=key();let tot=0,perfect=0,best=0;
+ const days=[...Array(n)].map((_,i)=>i+1);
+ const rows=S.h.map((h,i)=>{let done=0,run=0,b=0;
+  const cells=days.map(d=>{const on=S.c[k+'|'+i+'|'+d];if(on){done++;run++;b=Math.max(b,run)}else run=0;
+   return `<td><button class="ck ${on?'on':''}" style="--c:${COL[i%6]}" data-i="${i}" data-d="${d}" aria-pressed="${!!on}" aria-label="${esc(h)} day ${d}"></button></td>`}).join('');
+  tot+=done;best=Math.max(best,b);
+  return `<tr><th><span class="dot" style="background:${COL[i%6]}"></span><input class="hn" value="${esc(h)}" data-n="${i}" aria-label="Habit name"><button class="x" data-del="${i}" aria-label="Remove habit">×</button></th>${cells}<td class="pct">${Math.round(done/n*100)}%</td><td>${b}d</td></tr>`}).join('');
+ days.forEach(d=>{if(S.h.length&&S.h.every((_,i)=>S.c[k+'|'+i+'|'+d]))perfect++});
+ const pc=S.h.length?Math.round(tot/(n*S.h.length)*100):0;
+ const wks=[];for(let s=1;s<=n;s+=7){const e=Math.min(s+6,n);let c=0;for(let d=s;d<=e;d++)S.h.forEach((_,i)=>{if(S.c[k+'|'+i+'|'+d])c++});wks.push([s,e,S.h.length?Math.round(c/((e-s+1)*S.h.length)*100):0])}
+ return `<div class="scroll"><table><thead><tr><th style="text-align:left">${MN[S.m]} habits</th>${days.map(d=>`<th class="${isToday(d)?'today':''}">${d}</th>`).join('')}<th>done</th><th>best</th></tr></thead><tbody>${rows}</tbody></table></div>
+ <div class="add"><input id="nh" placeholder="Add a new habit" maxlength="30"><button id="ah">Add habit</button></div>
+ <div class="grid">
+  <div class="card c1"><h3>Month at a glance</h3><div class="donut" style="background:conic-gradient(var(--dk) ${pc*3.6}deg,rgba(255,255,255,.55) 0)"><span>${pc}%</span></div></div>
+  <div class="card c2"><h3>Week by week</h3>${wks.map((w,i)=>`<div class="wk">Wk ${i+1}<i><em style="width:${w[2]}%"></em></i>${w[2]}%</div>`).join('')}</div>
+  <div class="card c4"><h3>Highlights</h3><div class="stats"><div><b>${best}</b>longest streak</div><div><b>${perfect}</b>perfect days</div><div><b>${tot}</b>ticks</div></div></div>
+ </div>`}
+ 
+function mood(){
+ const n=dim(),k=key(),cnt=MOODS.map(()=>0);
+ const cells=[...Array(n)].map((_,i)=>{const v=S.mood[k+'|'+(i+1)];if(v!==undefined)cnt[v]++;
+  return `<button class="md" data-md="${i+1}" aria-label="Mood day ${i+1}"><span>${v!==undefined?MOODS[v][0]:'·'}</span>${i+1}</button>`}).join('');
+ return `<p>Tap a day to cycle through your moods.</p><div class="moods">${cells}</div>
+ <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(110px,1fr))">${MOODS.map((m,i)=>`<div class="card c${[1,2,4,3,5][i]}" style="text-align:center"><div style="font-size:26px">${m[0]}</div><b>${cnt[i]}</b> ${m[1]}</div>`).join('')}</div>`}
+ 
+function sleep(){
+ const n=dim(),k=key();let sum=0,c=0;
+ const cols=[...Array(n)].map((_,i)=>{const v=parseFloat(S.sleep[k+'|'+(i+1)]);if(v>0){sum+=v;c++}
+  return `<div><i style="height:${v>0?Math.min(v,12)/12*100:0}%"></i><input inputmode="decimal" data-sl="${i+1}" value="${v>0?v:''}" placeholder="${i+1}" aria-label="Hours slept day ${i+1}"></div>`}).join('');
+ const avg=c?(sum/c).toFixed(1):'–';
+ return `<p>Type the hours you slept under each day.</p><div class="sl">${cols}</div>
+ <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))"><div class="card c3" style="text-align:center"><b style="font-size:26px">${avg}</b><br>avg hours</div><div class="card c5" style="text-align:center"><b style="font-size:26px">${c}</b><br>nights logged</div></div>`}
+ 
+function routines(){
+ const list=(id,t,cl)=>`<div class="card ${cl}"><h3>${t}</h3>${S[id].map((r,i)=>`<label class="${r[1]?'done':''}"><input type="checkbox" data-rt="${id}|${i}" ${r[1]?'checked':''}>${esc(r[0])}</label>`).join('')}<div class="add"><input class="ti" data-add="${id}" placeholder="Add a step" maxlength="30"></div></div>`;
+ return `<div class="rt">${list('am','Morning routine','c6')}${list('pm','Evening routine','c5')}</div><p><button class="ghost" id="rs">Start a new day</button></p>`}
+ 
+function render(){
+ $('#yr').textContent=S.y;$('#yn').textContent=S.y;
+ $('#tabs').innerHTML=TABS.map(t=>`<button class="tab" role="tab" aria-selected="${S.tab==t}" data-t="${t}">${t}</button>`).join('');
+ $('#months').innerHTML=MN.map((m,i)=>`<button class="mo" aria-selected="${S.m==i}" data-m="${i}">${m}</button>`).join('');
+ $('#view').innerHTML=({habits,mood,sleep,routines})[S.tab]();
+}
+document.addEventListener('click',e=>{
+ const t=e.target.closest('button');if(!t)return;const D=t.dataset;
+ if(D.t){S.tab=D.t}else if(D.m!==undefined){S.m=+D.m}
+ else if(t.id=='py'){S.y--}else if(t.id=='ny'){S.y++}
+ else if(D.d){const k=key()+'|'+D.i+'|'+D.d;S.c[k]?delete S.c[k]:S.c[k]=1}
+ else if(D.del!==undefined){S.h.splice(+D.del,1)}
+ else if(t.id=='ah'){const v=$('#nh').value.trim();if(!v)return;S.h.push(v)}
+ else if(D.md){const k=key()+'|'+D.md,v=S.mood[k];const nx=v===undefined?0:v+1;nx>=MOODS.length?delete S.mood[k]:S.mood[k]=nx}
+ else if(t.id=='rs'){S.am.forEach(r=>r[1]=0);S.pm.forEach(r=>r[1]=0)}
+ else return;
+ save();render()});
+document.addEventListener('change',e=>{const t=e.target,D=t.dataset;
+ if(D.n!==undefined)S.h[+D.n]=t.value.trim()||S.h[+D.n];
+ else if(D.sl){S.sleep[key()+'|'+D.sl]=t.value}
+ else if(D.rt){const[a,i]=D.rt.split('|');S[a][+i][1]=t.checked?1:0}
+ else if(D.add){const v=t.value.trim();if(!v)return;S[D.add].push([v,0])}
+ else return;
+ save();render()});
+document.addEventListener('keydown',e=>{if(e.key=='Enter'&&e.target.id=='nh')$('#ah').click()});
+let th=null;try{th=localStorage.getItem('ht27t')}catch(e){}
+function setTh(t){document.documentElement.dataset.theme=t;$('#th').innerHTML=t=='dark'?'<b>☀</b>light<br>mode':'<b>☾</b>dark<br>mode';try{localStorage.setItem('ht27t',t)}catch(e){}}
+setTh(th||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
+$('#th').onclick=()=>setTh(document.documentElement.dataset.theme=='dark'?'light':'dark');
+render();
+</script></body></html>
+ 
